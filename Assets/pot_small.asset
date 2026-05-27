@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d039dda01ef29564c8fb52689c6e6651, type: 3}
+  m_Name: pot_small
+  m_EditorClassIdentifier: 
+  potId: pot_small
+  displayName: Small Pot
+  slotSize: 1
+  potPrefab: {fileID: 919871469423446101, guid: f6d47f9950447a94492e426d441fc3b6, type: 3}
+  viewOffset: {x: 0, y: 0}

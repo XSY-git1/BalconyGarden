@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 993135bf14aa6ff47b3f2b90dd23e972, type: 3}
+  m_Name: Plant_Tomato
+  m_EditorClassIdentifier: 
+  plantId: plant_tomato
+  displayName: Tomato
+  harvestItemId: item_tomato_fruit
+  harvestDisplayName: Tomato Fruit
+  plantPrefab: {fileID: 0}
+  totalGrowthMinutes: 2
+  seedColor: {r: 0.42, g: 0.26, b: 0.16, a: 1}
+  sproutColor: {r: 0.38, g: 0.74, b: 0.28, a: 1}
+  youngColor: {r: 0.2, g: 0.62, b: 0.25, a: 1}
+  matureColor: {r: 0.9, g: 0.18, b: 0.14, a: 1}
+  seedWorldSize: {x: 0.32, y: 0.24}
+  sproutWorldSize: {x: 0.34, y: 0.45}
+  youngWorldSize: {x: 0.42, y: 0.72}
+  matureWorldSize: {x: 0.55, y: 0.95}
+  viewOffset: {x: 0, y: 0.55}
+  sortingOrder: 20

@@ -4,7 +4,9 @@ Unity2D casual balcony planting prototype.
 
 ## Current Status
 
-The project is currently focused on `MVP_01`: proving the core planting loop.
+`MVP_01` has proved the core planting loop.
+
+`MVP_02` has started with a small player-facing HUD pass while keeping the debug panel available for testing.
 
 Implemented:
 
@@ -19,6 +21,7 @@ Implemented:
 - Mature plant harvest
 - Local JSON save/load through PlayerPrefs
 - Temporary debug UI for testing
+- Basic player HUD for pot selection, seed selection, planting, harvesting, and inventory display
 
 Intentionally not included yet:
 

@@ -289,6 +289,7 @@ GameObject:
   - component: {fileID: 391879149}
   - component: {fileID: 391879150}
   - component: {fileID: 391879151}
+  - component: {fileID: 391879152}
   m_Layer: 0
   m_Name: BalconyLayout
   m_TagString: Untagged
@@ -414,6 +415,29 @@ MonoBehaviour:
   autoLoadOnStart: 1
   saveOnApplicationPause: 1
   saveOnApplicationQuit: 1
+--- !u!114 &391879152
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 391879146}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c7d7a7f0a764f8b91f46bc6d932e7de, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  layoutManager: {fileID: 391879147}
+  seedInventory: {fileID: 391879150}
+  harvestInventory: {fileID: 0}
+  showPanel: 1
+  panelRect:
+    serializedVersion: 2
+    x: 320
+    y: 16
+    width: 300
+    height: 420
+  minimumPanelSize: {x: 300, y: 420}
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0

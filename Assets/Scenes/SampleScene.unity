@@ -166,8 +166,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 57c150fbc9bfead41b8764ca40697a1d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
   slotIndex: 0
   layoutManager: {fileID: 0}
   debugRenderer: {fileID: 317766260}
@@ -290,6 +290,7 @@ GameObject:
   - component: {fileID: 391879150}
   - component: {fileID: 391879151}
   - component: {fileID: 391879152}
+  - component: {fileID: 391879153}
   m_Layer: 0
   m_Name: BalconyLayout
   m_TagString: Untagged
@@ -324,6 +325,8 @@ MonoBehaviour:
   placeSelectedPotWhenClickingEmptySlot: 1
   autoFitPotViewsToSlots: 1
   singleSlotPotViewWidth: 1.25
+  autoRefreshPlantGrowth: 1
+  growthRefreshIntervalSeconds: 1
   placedPots: []
 --- !u!4 &391879148
 Transform:
@@ -361,15 +364,15 @@ MonoBehaviour:
   layoutManager: {fileID: 391879147}
   saveStore: {fileID: 0}
   seedInventory: {fileID: 391879150}
-  harvestInventory: {fileID: 0}
+  harvestInventory: {fileID: 391879153}
   showPanel: 1
   panelRect:
     serializedVersion: 2
     x: 16
     y: 16
     width: 260
-    height: 260
-  minimumPanelSize: {x: 300, y: 420}
+    height: 220
+  minimumPanelSize: {x: 260, y: 220}
 --- !u!114 &391879150
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -410,7 +413,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   layoutManager: {fileID: 391879147}
   seedInventory: {fileID: 391879150}
-  harvestInventory: {fileID: 0}
+  harvestInventory: {fileID: 391879153}
   saveStore: {fileID: 0}
   autoLoadOnStart: 1
   saveOnApplicationPause: 1
@@ -429,7 +432,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   layoutManager: {fileID: 391879147}
   seedInventory: {fileID: 391879150}
-  harvestInventory: {fileID: 0}
+  harvestInventory: {fileID: 391879153}
   showPanel: 1
   panelRect:
     serializedVersion: 2
@@ -438,6 +441,19 @@ MonoBehaviour:
     width: 300
     height: 420
   minimumPanelSize: {x: 300, y: 420}
+--- !u!114 &391879153
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 391879146}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e17698c320747442a179d98876ca512, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  items: []
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0

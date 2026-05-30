@@ -6,10 +6,14 @@ public class PotView : MonoBehaviour
     [SerializeField] private Color normalColor = Color.white;
     [SerializeField] private Color selectedColor = new Color(1f, 0.92f, 0.45f, 1f);
     [SerializeField] private bool autoFindTintRenderer = true;
+    [SerializeField] private bool autoCreateClickCollider = true;
+    [SerializeField] private Vector2 clickColliderSize = Vector2.one;
 
     private PotInstance potInstance;
     private PotData potData;
+    private BalconyPotLayoutManager layoutManager;
     private PlantView plantView;
+    private BoxCollider2D clickCollider;
 
     public PotInstance PotInstance => potInstance;
     public PotData PotData => potData;
@@ -17,11 +21,18 @@ public class PotView : MonoBehaviour
 
     public void Bind(PotInstance instance, PotData data)
     {
+        Bind(instance, data, null);
+    }
+
+    public void Bind(PotInstance instance, PotData data, BalconyPotLayoutManager manager)
+    {
         potInstance = instance;
         potData = data;
+        layoutManager = manager;
         gameObject.name = data != null
             ? $"PotView_{data.PotId}_{instance.startSlotIndex}"
             : $"PotView_{instance.potId}_{instance.startSlotIndex}";
+        EnsureClickCollider();
     }
 
     public void SetSelected(bool selected)
@@ -113,11 +124,47 @@ public class PotView : MonoBehaviour
         tintRenderer = GetComponentInChildren<SpriteRenderer>();
     }
 
+    private void OnValidate()
+    {
+        clickColliderSize.x = Mathf.Max(0.1f, clickColliderSize.x);
+        clickColliderSize.y = Mathf.Max(0.1f, clickColliderSize.y);
+    }
+
+    private void OnMouseDown()
+    {
+        if (layoutManager != null && potInstance != null)
+        {
+            layoutManager.SelectPot(potInstance);
+        }
+    }
+
     private void EnsureTintRenderer()
     {
         if (tintRenderer == null && autoFindTintRenderer)
         {
             tintRenderer = GetComponentInChildren<SpriteRenderer>();
         }
+    }
+
+    private void EnsureClickCollider()
+    {
+        if (!autoCreateClickCollider)
+        {
+            return;
+        }
+
+        if (clickCollider == null)
+        {
+            clickCollider = GetComponent<BoxCollider2D>();
+        }
+
+        if (clickCollider == null)
+        {
+            clickCollider = gameObject.AddComponent<BoxCollider2D>();
+        }
+
+        clickCollider.isTrigger = false;
+        clickCollider.size = clickColliderSize;
+        clickCollider.offset = Vector2.zero;
     }
 }

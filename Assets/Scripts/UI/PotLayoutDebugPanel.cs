@@ -8,11 +8,10 @@ public class PotLayoutDebugPanel : MonoBehaviour
     [SerializeField] private SeedInventory seedInventory;
     [SerializeField] private HarvestInventory harvestInventory;
     [SerializeField] private bool showPanel = true;
-    [SerializeField] private Rect panelRect = new Rect(16f, 16f, 290f, 390f);
-    [SerializeField] private Vector2 minimumPanelSize = new Vector2(300f, 420f);
+    [SerializeField] private Rect panelRect = new Rect(16f, 16f, 260f, 220f);
+    [SerializeField] private Vector2 minimumPanelSize = new Vector2(260f, 220f);
 
     private string statusText = "Ready";
-    private SeedData selectedSeedData;
     private Vector2 scrollPosition;
 
     private void Awake()
@@ -101,48 +100,8 @@ public class PotLayoutDebugPanel : MonoBehaviour
         GUILayout.Label($"Selected Pot: {GetSelectedPotName()}");
         GUILayout.Label($"Selected Pot Plant: {GetSelectedPotPlantName()}");
         GUILayout.Label($"Selected Plant Stage: {GetSelectedPlantStageName()}");
-        GUILayout.Label($"Selected Seed: {GetSelectedSeedName()}");
 
         GUILayout.Space(6f);
-        GUILayout.Label("Select Pot Type");
-
-        foreach (PotData potData in layoutManager.PotCatalog)
-        {
-            if (potData == null)
-            {
-                continue;
-            }
-
-            if (GUILayout.Button($"{potData.DisplayName} ({potData.SlotSize} slot)"))
-            {
-                layoutManager.SetSelectedPotData(potData);
-                statusText = $"Selected {potData.DisplayName}";
-            }
-        }
-
-        GUILayout.Space(6f);
-        DrawSeedControls();
-
-        GUILayout.Space(6f);
-
-        if (GUILayout.Button("Remove Selected Pot"))
-        {
-            statusText = layoutManager.RemoveSelectedPot() ? "Removed selected pot" : "No selected pot to remove";
-        }
-
-        if (GUILayout.Button("Refresh Growth"))
-        {
-            layoutManager.RefreshAllPlantGrowth();
-            statusText = "Refreshed plant growth";
-        }
-
-        GUI.enabled = layoutManager.CanHarvestSelectedPlant();
-        if (GUILayout.Button("Harvest Selected Plant"))
-        {
-            TryHarvestSelectedPlant();
-        }
-        GUI.enabled = true;
-
         GUILayout.BeginHorizontal();
         if (GUILayout.Button("Save"))
         {
@@ -171,7 +130,10 @@ public class PotLayoutDebugPanel : MonoBehaviour
         GUILayout.EndHorizontal();
 
         GUILayout.Space(6f);
-        DrawHarvestInventory();
+        if (GUILayout.Button("Reset Test Seeds"))
+        {
+            ResetTestSeeds();
+        }
 
         GUILayout.Space(6f);
         GUILayout.Label(statusText);
@@ -193,88 +155,16 @@ public class PotLayoutDebugPanel : MonoBehaviour
         panelRect.y = Mathf.Clamp(panelRect.y, 0f, Mathf.Max(0f, Screen.height - panelRect.height));
     }
 
-    private void DrawSeedControls()
+    private void ResetTestSeeds()
     {
-        GUILayout.Label("Select Seed");
-
         if (seedInventory == null)
         {
-            GUILayout.Label("No SeedInventory found.");
+            statusText = "No SeedInventory found";
             return;
         }
 
-        if (GUILayout.Button("Reset Test Seeds"))
-        {
-            seedInventory.ResetToStartingSeeds();
-            selectedSeedData = null;
-            statusText = "Reset seed inventory";
-        }
-
-        foreach (SeedInventoryEntry entry in seedInventory.Seeds)
-        {
-            if (entry == null || entry.seedData == null)
-            {
-                continue;
-            }
-
-            string label = $"{entry.seedData.DisplayName} x{entry.count}";
-            if (GUILayout.Button(label))
-            {
-                selectedSeedData = entry.seedData;
-                statusText = $"Selected {entry.seedData.DisplayName}";
-            }
-        }
-
-        bool canTryPlant = selectedSeedData != null && layoutManager.SelectedPot != null;
-        GUI.enabled = canTryPlant;
-        if (GUILayout.Button("Plant Selected Seed"))
-        {
-            TryPlantSelectedSeed();
-        }
-        GUI.enabled = true;
-    }
-
-    private void TryPlantSelectedSeed()
-    {
-        if (selectedSeedData == null)
-        {
-            statusText = "Select a seed first";
-            return;
-        }
-
-        if (layoutManager.SelectedPot == null)
-        {
-            statusText = "Select a pot first";
-            return;
-        }
-
-        if (!seedInventory.HasSeed(selectedSeedData.SeedId))
-        {
-            statusText = $"No {selectedSeedData.DisplayName} left";
-            return;
-        }
-
-        string failureReason = layoutManager.GetPlantSeedFailureReason(layoutManager.SelectedPot, selectedSeedData);
-        if (!string.IsNullOrEmpty(failureReason))
-        {
-            statusText = failureReason;
-            return;
-        }
-
-        if (!seedInventory.TryConsumeSeed(selectedSeedData.SeedId))
-        {
-            statusText = $"No {selectedSeedData.DisplayName} left";
-            return;
-        }
-
-        if (layoutManager.PlantSeedInSelectedPot(selectedSeedData, out _))
-        {
-            statusText = $"Planted {selectedSeedData.DisplayName}";
-            return;
-        }
-
-        seedInventory.AddSeed(selectedSeedData, 1);
-        statusText = "Planting failed";
+        seedInventory.ResetToStartingSeeds();
+        statusText = "Reset seed inventory";
     }
 
     private void SaveGame()
@@ -309,39 +199,6 @@ public class PotLayoutDebugPanel : MonoBehaviour
         saveStore.ClearSave();
     }
 
-    private void TryHarvestSelectedPlant()
-    {
-        if (!layoutManager.HarvestSelectedPlant(out string itemId, out string displayName))
-        {
-            statusText = "Selected plant is not mature";
-            return;
-        }
-
-        harvestInventory.AddItem(itemId, displayName, 1);
-        statusText = $"Harvested {displayName}";
-    }
-
-    private void DrawHarvestInventory()
-    {
-        GUILayout.Label("Harvested Items");
-
-        if (harvestInventory == null || harvestInventory.Items.Count == 0)
-        {
-            GUILayout.Label("None");
-            return;
-        }
-
-        foreach (HarvestInventoryEntry entry in harvestInventory.Items)
-        {
-            if (entry == null)
-            {
-                continue;
-            }
-
-            GUILayout.Label($"{entry.displayName} x{entry.count}");
-        }
-    }
-
     private string GetSelectedPotDataName()
     {
         PotData selectedPotData = layoutManager.SelectedPotData;
@@ -363,10 +220,5 @@ public class PotLayoutDebugPanel : MonoBehaviour
     private string GetSelectedPlantStageName()
     {
         return layoutManager != null ? layoutManager.GetSelectedPlantStageText() : "None";
-    }
-
-    private string GetSelectedSeedName()
-    {
-        return selectedSeedData != null ? $"{selectedSeedData.DisplayName} -> {selectedSeedData.PlantId}" : "None";
     }
 }

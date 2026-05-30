@@ -22,12 +22,17 @@ public class BalconyPotLayoutManager : MonoBehaviour
     [SerializeField] private bool autoFitPotViewsToSlots = true;
     [SerializeField, Min(0.1f)] private float singleSlotPotViewWidth = 1.25f;
 
+    [Header("Growth")]
+    [SerializeField] private bool autoRefreshPlantGrowth = true;
+    [SerializeField, Min(0.1f)] private float growthRefreshIntervalSeconds = 1f;
+
     [Header("Runtime Data")]
     [SerializeField] private List<PotInstance> placedPots = new List<PotInstance>();
 
     private readonly Dictionary<string, PotView> potViewsByInstanceId = new Dictionary<string, PotView>();
     private PotInstance[] slotOccupancy;
     private string selectedPotInstanceId;
+    private float growthRefreshTimer;
 
     public event Action<PotInstance> PotSelected;
     public event Action LayoutChanged;
@@ -54,6 +59,24 @@ public class BalconyPotLayoutManager : MonoBehaviour
     private void OnValidate()
     {
         slotCount = Mathf.Max(1, slotCount);
+        growthRefreshIntervalSeconds = Mathf.Max(0.1f, growthRefreshIntervalSeconds);
+    }
+
+    private void Update()
+    {
+        if (!autoRefreshPlantGrowth || placedPots.Count == 0)
+        {
+            return;
+        }
+
+        growthRefreshTimer += Time.deltaTime;
+        if (growthRefreshTimer < growthRefreshIntervalSeconds)
+        {
+            return;
+        }
+
+        growthRefreshTimer = 0f;
+        RefreshAllPlantGrowth();
     }
 
     public void InitializeLayout()
@@ -193,6 +216,11 @@ public class BalconyPotLayoutManager : MonoBehaviour
             return "Select a seed first";
         }
 
+        if (ClearInvalidPlantIfNeeded(pot))
+        {
+            RefreshPlantView(pot);
+        }
+
         if (pot.plant != null)
         {
             return "This pot already has a plant";
@@ -248,6 +276,12 @@ public class BalconyPotLayoutManager : MonoBehaviour
                 continue;
             }
 
+            if (ClearInvalidPlantIfNeeded(pot))
+            {
+                RefreshPlantView(pot);
+                continue;
+            }
+
             RefreshPlantGrowth(pot, pot.plant);
             RefreshPlantView(pot);
         }
@@ -261,6 +295,12 @@ public class BalconyPotLayoutManager : MonoBehaviour
             return "None";
         }
 
+        if (ClearInvalidPlantIfNeeded(selectedPot))
+        {
+            RefreshPlantView(selectedPot);
+            return "None";
+        }
+
         PlantData plantData = FindPlantData(selectedPot.plant.plantId);
         if (plantData == null)
         {
@@ -269,6 +309,27 @@ public class BalconyPotLayoutManager : MonoBehaviour
 
         double elapsedMinutes = GetElapsedGrowthMinutes(selectedPot.plant);
         return $"{selectedPot.plant.currentStage} ({elapsedMinutes:0.0}/{plantData.TotalGrowthMinutes} min)";
+    }
+
+    public PlantData GetSelectedPlantData()
+    {
+        return GetPlantDataForPot(SelectedPot);
+    }
+
+    public PlantData GetPlantDataForPot(PotInstance pot)
+    {
+        if (pot == null || pot.plant == null)
+        {
+            return null;
+        }
+
+        if (ClearInvalidPlantIfNeeded(pot))
+        {
+            RefreshPlantView(pot);
+            return null;
+        }
+
+        return FindPlantData(pot.plant.plantId);
     }
 
     public bool CanHarvestSelectedPlant()
@@ -280,6 +341,12 @@ public class BalconyPotLayoutManager : MonoBehaviour
     {
         if (pot == null || pot.plant == null)
         {
+            return false;
+        }
+
+        if (ClearInvalidPlantIfNeeded(pot))
+        {
+            RefreshPlantView(pot);
             return false;
         }
 
@@ -379,6 +446,7 @@ public class BalconyPotLayoutManager : MonoBehaviour
                 continue;
             }
 
+            ClearInvalidPlantIfNeeded(pot);
             MarkSlotsOccupied(pot);
             validPots.Add(pot);
         }
@@ -518,7 +586,7 @@ public class BalconyPotLayoutManager : MonoBehaviour
             potView = viewObject.AddComponent<PotView>();
         }
 
-        potView.Bind(pot, potData);
+        potView.Bind(pot, potData, this);
         if (autoFitPotViewsToSlots)
         {
             potView.FitToWorldWidth(GetPotViewTargetWidth(pot));
@@ -542,6 +610,12 @@ public class BalconyPotLayoutManager : MonoBehaviour
         }
 
         if (pot.plant == null)
+        {
+            potView.ClearPlant();
+            return;
+        }
+
+        if (ClearInvalidPlantIfNeeded(pot))
         {
             potView.ClearPlant();
             return;
@@ -571,6 +645,22 @@ public class BalconyPotLayoutManager : MonoBehaviour
         }
 
         plant.currentStage = CalculateGrowthStage(plant, plantData);
+    }
+
+    private bool ClearInvalidPlantIfNeeded(PotInstance pot)
+    {
+        if (pot == null || pot.plant == null)
+        {
+            return false;
+        }
+
+        if (!string.IsNullOrEmpty(pot.plant.plantId) && FindPlantData(pot.plant.plantId) != null)
+        {
+            return false;
+        }
+
+        pot.plant = null;
+        return true;
     }
 
     private PlantGrowthStage CalculateGrowthStage(PlantInstance plant, PlantData plantData)

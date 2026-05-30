@@ -6,7 +6,7 @@ Unity2D casual balcony planting prototype.
 
 `MVP_01` has proved the core planting loop.
 
-`MVP_02` has started with a small player-facing HUD pass while keeping the debug panel available for testing.
+`MVP_02` is planned in `MVP_02.md`.
 
 Implemented:
 
@@ -18,6 +18,7 @@ Implemented:
 - Daisy, Tomato, and Mystery plant data
 - Seed inventory
 - Real-world-time plant growth stages
+- Automatic in-play growth refresh
 - Mature plant harvest
 - Local JSON save/load through PlayerPrefs
 - Temporary debug UI for testing
@@ -48,9 +49,9 @@ Assets/Scenes/SampleScene.unity
 Basic MVP check:
 
 1. Enter Play Mode.
-2. Use the debug panel to select a pot type.
+2. Use the Garden panel to select a pot type.
 3. Click an empty slot to place a pot.
-4. Select a seed and plant it into the selected pot.
+4. Use the Garden panel to select a seed and plant it into a pot.
 5. Wait for the plant to mature or use short test growth times.
 6. Harvest the mature plant.
 7. Save, clear layout, then load to confirm data restores.

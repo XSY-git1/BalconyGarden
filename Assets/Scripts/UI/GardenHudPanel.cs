@@ -57,6 +57,7 @@ public class GardenHudPanel : MonoBehaviour
 
         DrawSummary();
         DrawPotSelection();
+        DrawPlacedPotSelection();
         DrawSeedSelection();
         DrawActions();
         DrawHarvestInventory();
@@ -94,6 +95,42 @@ public class GardenHudPanel : MonoBehaviour
                 layoutManager.SetSelectedPotData(potData);
                 statusText = $"Selected {potData.DisplayName}";
             }
+        }
+    }
+
+    private void DrawPlacedPotSelection()
+    {
+        GUILayout.Space(8f);
+        GUILayout.Label("Placed Pots");
+
+        if (layoutManager.PlacedPots.Count == 0)
+        {
+            GUILayout.Label("None");
+            return;
+        }
+
+        foreach (PotInstance pot in layoutManager.PlacedPots)
+        {
+            if (pot == null)
+            {
+                continue;
+            }
+
+            string plantText = pot.plant != null ? $"{pot.plant.plantId} ({pot.plant.currentStage})" : "Empty";
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button($"Slot {pot.startSlotIndex}: {pot.potId} - {plantText}"))
+            {
+                layoutManager.SelectPot(pot);
+                statusText = $"Selected pot @ Slot {pot.startSlotIndex}";
+            }
+
+            GUI.enabled = selectedSeedData != null && pot.plant == null;
+            if (GUILayout.Button("Plant Here", GUILayout.Width(90f)))
+            {
+                TryPlantSeedInPot(pot);
+            }
+            GUI.enabled = true;
+            GUILayout.EndHorizontal();
         }
     }
 
@@ -149,6 +186,13 @@ public class GardenHudPanel : MonoBehaviour
             layoutManager.RefreshAllPlantGrowth();
             statusText = "Growth refreshed";
         }
+
+        GUI.enabled = layoutManager.SelectedPot != null;
+        if (GUILayout.Button("Remove Selected Pot"))
+        {
+            statusText = layoutManager.RemoveSelectedPot() ? "Removed selected pot" : "No selected pot to remove";
+        }
+        GUI.enabled = true;
     }
 
     private void TryPlantSelectedSeed()
@@ -165,7 +209,36 @@ public class GardenHudPanel : MonoBehaviour
             return;
         }
 
+        if (!seedInventory.HasSeed(selectedSeedData.SeedId))
+        {
+            statusText = $"No {selectedSeedData.DisplayName} left";
+            return;
+        }
+
         if (layoutManager.SelectedPot == null)
+        {
+            statusText = "Select a pot first";
+            return;
+        }
+
+        TryPlantSeedInPot(layoutManager.SelectedPot);
+    }
+
+    private void TryPlantSeedInPot(PotInstance targetPot)
+    {
+        if (seedInventory == null)
+        {
+            statusText = "No seed inventory found";
+            return;
+        }
+
+        if (selectedSeedData == null)
+        {
+            statusText = "Select a seed first";
+            return;
+        }
+
+        if (targetPot == null)
         {
             statusText = "Select a pot first";
             return;
@@ -177,9 +250,10 @@ public class GardenHudPanel : MonoBehaviour
             return;
         }
 
-        string failureReason = layoutManager.GetPlantSeedFailureReason(layoutManager.SelectedPot, selectedSeedData);
+        string failureReason = layoutManager.GetPlantSeedFailureReason(targetPot, selectedSeedData);
         if (!string.IsNullOrEmpty(failureReason))
         {
+            layoutManager.SelectPot(targetPot);
             statusText = failureReason;
             return;
         }
@@ -190,9 +264,10 @@ public class GardenHudPanel : MonoBehaviour
             return;
         }
 
-        if (layoutManager.PlantSeedInSelectedPot(selectedSeedData, out _))
+        if (layoutManager.PlantSeed(targetPot, selectedSeedData, out _))
         {
-            statusText = $"Planted {selectedSeedData.DisplayName}";
+            layoutManager.SelectPot(targetPot);
+            statusText = $"Planted {selectedSeedData.DisplayName} @ Slot {targetPot.startSlotIndex}";
             return;
         }
 
